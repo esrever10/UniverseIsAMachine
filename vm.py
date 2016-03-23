@@ -1,5 +1,5 @@
 class CPU:
-    Opcodes = {
+    Opcode = {
         'call'    : 0x1,
         'mov'     : 0x2,
         'jmp'     : 0x3,
@@ -20,139 +20,178 @@ class CPU:
         'pop'     : 0x12,
     }
     
-    def __init__(self, vm):
-        self.r1 = 0
-        self.r2 = 0
-        self.r3 = 0
-        self.r4 = 0
-        self.r5 = 0
-        self.r6 = 0
-        self.r7 = 0
-        self.r8 = 0
-        self.sp = 0
-        self.ip = 0
-        self.flag = 0
-        self.context = vm
-        self.optable = {}
-        self.init_optable()
+    Register = {
+        'eax'     : 0xa1,
+        'ebx'     : 0xa2,
+        'ecx'     : 0xa3,
+        'edx'     : 0xa4,
+        'esi'     : 0xa5,
+        'edi'     : 0xa6,
+        'ebp'     : 0xa7,
+        'eesp'     : 0xa8,
+        'eeip'     : 0xa9,
+    }
     
+    def __init__(self, vm):
+        self.context = vm
+        self.registers = {}
+        self.opcodes = {}
+        self.init_optable()
+        
     def init_optable(self):
-        self.optable = {
-            CPU.Opcodes['call'] : self.v_call,
-            CPU.Opcodes['mov'] : self.v_mov,
-            CPU.Opcodes['jmp'] : self.v_jmp,
-            CPU.Opcodes['jz'] : self.v_jz,
-            CPU.Opcodes['jnz'] : self.v_jnz,
-            CPU.Opcodes['inc'] : self.v_inc,
-            CPU.Opcodes['dec'] : self.v_dec,
-            CPU.Opcodes['add'] : self.v_add,
-            CPU.Opcodes['sub'] : self.v_sub,
-            CPU.Opcodes['xor'] : self.v_xor,
-            CPU.Opcodes['cmp'] : self.v_cmp,
-            CPU.Opcodes['ret'] : self.v_ret,
-            CPU.Opcodes['read'] : self.v_read,
-            CPU.Opcodes['write'] : self.v_write,
-            CPU.Opcodes['nop'] : self.v_nop,
-            CPU.Opcodes['lea'] : self.v_lea,
-            CPU.Opcodes['push'] : self.v_push,
-            CPU.Opcodes['pop'] : self.v_pop,
+    
+        self.registers = {
+            CPU.Register['eax'] : 0,
+            CPU.Register['ebx'] : 0,
+            CPU.Register['ecx'] : 0,
+            CPU.Register['edx'] : 0,
+            CPU.Register['esi'] : 0,
+            CPU.Register['edi'] : 0,
+            CPU.Register['ebp'] : 0,
+            CPU.Register['eesp'] : 0,
+            CPU.Register['eeip'] : 0,
+        }
+        
+        self.opcodes = {
+            CPU.Opcode['call'] : self.v_call,
+            CPU.Opcode['mov'] : self.v_mov,
+            CPU.Opcode['jmp'] : self.v_jmp,
+            CPU.Opcode['jz'] : self.v_jz,
+            CPU.Opcode['jnz'] : self.v_jnz,
+            CPU.Opcode['inc'] : self.v_inc,
+            CPU.Opcode['dec'] : self.v_dec,
+            CPU.Opcode['add'] : self.v_add,
+            CPU.Opcode['sub'] : self.v_sub,
+            CPU.Opcode['xor'] : self.v_xor,
+            CPU.Opcode['cmp'] : self.v_cmp,
+            CPU.Opcode['ret'] : self.v_ret,
+            CPU.Opcode['read'] : self.v_read,
+            CPU.Opcode['write'] : self.v_write,
+            CPU.Opcode['nop'] : self.v_nop,
+            CPU.Opcode['lea'] : self.v_lea,
+            CPU.Opcode['push'] : self.v_push,
+            CPU.Opcode['pop'] : self.v_pop,
         }
     
-    def run(self, progress):
-        self.ip = 0
-        self.sp = 0
-        while self.ip < len(progress.codeseg):
-            op = progress.codeseg[self.ip]
-            if op in self.optable.iterkeys():
-                self.optable[op]()
+    @property
+    def progress(self):
+        return self.context.progress
+
+    def run(self):
+        self.eip = self.progress.codeseg_entry
+        self.esp = 0
+        while self.eip < len(self.progress.codeseg):
+            opcode = self.progress.codeseg[self.eip]
+            if opcode in self.opcodes.iterkeys():
+                self.eip += self.opcodes[opcode]()
             else:
-                self.ip += 1
-                  
+                self.eip += 1
+           
     def v_call(self):
         print 'call'
-        self.ip += 1
+        return 1
     
     def v_mov(self):
         print 'mov'
-        self.ip += 1
+        return 1
     
     def v_jmp(self):
         print 'jmp'
-        self.ip += 1
+        return 1
         
     def v_jz(self):
         print 'jz'
-        self.ip += 1
+        return 1
     
     def v_jnz(self):
         print 'jnz'
-        self.ip += 1
+        return 1
     
     def v_inc(self):
         print 'inc'
-        self.ip += 1
+        return 1
         
     def v_dec(self):
         print 'dec'
-        self.ip += 1
+        return 1
         
     def v_add(self):
         print 'add'
-        self.ip += 1
+        return 1
     
     def v_sub(self):
         print 'sub'
-        self.ip += 1
+        return 1
     
     def v_xor(self):
         print 'xor'
-        self.ip += 1
+        return 1
     
     def v_cmp(self):
         print 'cmp'
-        self.ip += 1
+        return 1
     
     def v_ret(self):
         print 'ret'
-        self.ip += 1
+        return 1
     
     def v_read(self):
         print 'read'
-        self.ip += 1
+        return 1
     
     def v_write(self):
         print 'write'
-        self.ip += 1
+        return 1
     
     def v_nop(self):
         print 'nop'
-        self.ip += 1
+        return 1
     
     def v_lea(self):
         print 'lea'
-        self.ip += 1           
+        return 1          
         
     def v_push(self):
-        print 'push'
-        self.ip += 1
+        if self.eip + 1 >= len(self.progress.codeseg):
+            print "parser error: push "
+            return 1
+        print 'push ' + str(self.progress.codeseg[self.eip + 1])
+        
+        self.progress.stack[self.esp] = self.progress.codeseg[self.eip + 1]
+        self.esp += 1
+        return 2
         
     def v_pop(self):
-        print 'pop'
-        self.ip += 1    
+        if self.eip + 1 >= len(self.progress.codeseg):
+            print "parser error: pop "
+            return 1
+        reg = self.progress.codeseg[self.eip + 1]
+        print 'pop ' + str(reg)
+
+        if reg in CPU.Register.iterkeys():
+            self.registers[reg] = self.progress.stack[self.esp]
+            self.esp -= 1
+            return 2
+        else:
+            print "parser error: pop " + str(reg)
+            return 1
         
 class Progress:
     def __init__(self, program):
-        self.stack = []
-        self.heap = []
+        self.stack = [0] * (1024 * 1024)
+        self.heap = [0] * (1024 * 1024 * 5)
+        self.codeseg_entry = 0
         self.codeseg = program
 
 class VM:
     def __init__(self):
         self.cpu = CPU(self)
+        self.progress = None    
 
     def run(self, program):
-        progress = Progress(program)
-        self.cpu.run(progress)
+        self.progress = Progress(program)
+        self.cpu.eip = self.progress.codeseg_entry
+        self.cpu.run()
     
 if __name__ == '__main__':
     vm = VM()
